@@ -1,0 +1,18 @@
+SELECT *,
+	CASE
+		WHEN age BETWEEN 0 AND 18 THEN 'до 18 лет'
+		WHEN age BETWEEN 19 AND 25 THEN '19-25 лет'
+		WHEN age BETWEEN 26 AND 35 THEN '26-35 лет'
+		WHEN age BETWEEN 36 AND 45 THEN '36-45 лет'
+		WHEN age BETWEEN 46 AND 60 THEN '46-60 лет'
+		WHEN age >=61 THEN 'более 60 лет'
+		ELSE 'категория не определена' --для выявления людей, у которых возраст менее 0
+		END AS категория_возраста,
+	CASE
+		WHEN Daily_Phone_Hours <=6 THEN 'экранное время ниже среднего'
+		ELSE 'экранное время выше среднего'
+		END AS категория_экранного_времени,
+	AVG(daily_phone_hours) OVER (PARTITION BY gender) AS среднее_экранное_время_по_полу,
+	SUM(sleep_hours) OVER (PARTITION BY occupation) AS сумма_времени_сна_по_профессии
+FROM smartphone
+ORDER BY user_id;
