@@ -16,3 +16,4 @@ WHERE p.user_id IN (SELECT *
       AND DATE_TRUNC('year', p.creation_date)::date = '2008-01-01'
 GROUP BY DATE_TRUNC('month', p.creation_date)::date
 ORDER BY DATE_TRUNC('month', p.creation_date)::date DESC
+
