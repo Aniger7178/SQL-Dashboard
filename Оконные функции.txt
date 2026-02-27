@@ -1,0 +1,22 @@
+SELECT  dt.date_trunc,
+        SUM(dt.count) OVER (ORDER BY dt.date_trunc)
+FROM (SELECT  CAST(DATE_TRUNC('month', created_at) AS date),
+              COUNT(user_id)
+      FROM tools_shop.users
+      GROUP BY CAST(DATE_TRUNC('month', created_at) AS date)
+      ORDER BY date_trunc) AS dt
+
+SELECT dm,
+    e_count,
+    SUM(e_count) OVER(ORDER BY dm)
+FROM (
+    SELECT 
+        DATE_TRUNC('month', event_time)::date AS dm,
+        COUNT(*) AS e_count
+    FROM tools_shop.events
+    WHERE event_name = 'view_item' 
+        AND user_id IN (SELECT user_id
+                      FROM tools_shop.orders
+                      WHERE paid_at IS NOT NULL)
+    GROUP BY DATE_TRUNC('month', event_time)::date
+    ) AS mmm 

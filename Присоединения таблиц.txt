@@ -1,0 +1,10 @@
+SELECT 
+       SUM(i.quantity),
+       pt.playlist_id,
+       p.name
+FROM track AS t
+INNER JOIN invoice_line AS i ON t.track_id=i.track_id
+INNER JOIN playlist_track AS pt ON t.track_id=pt.track_id
+INNER JOIN playlist AS p ON pt.playlist_id = p.playlist_id
+GROUP BY t.name, pt.playlist_id, p.name
+LIMIT 20;

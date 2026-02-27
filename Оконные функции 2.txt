@@ -1,0 +1,18 @@
+WITH users AS (
+    SELECT u.id
+    FROM stackoverflow.posts AS p
+    JOIN stackoverflow.users AS u ON p.user_id=u.id
+    WHERE DATE_TRUNC('month', u.creation_date)::date = '2008-09-01' 
+       AND DATE_TRUNC('month', p.creation_date)::date = '2008-12-01'
+    GROUP BY u.id
+    HAVING COUNT(p.id) > 0)
+
+SELECT 
+    COUNT(p.id),
+    DATE_TRUNC('month', p.creation_date)::date
+FROM stackoverflow.posts AS p
+WHERE p.user_id IN (SELECT *
+                    FROM users)
+      AND DATE_TRUNC('year', p.creation_date)::date = '2008-01-01'
+GROUP BY DATE_TRUNC('month', p.creation_date)::date
+ORDER BY DATE_TRUNC('month', p.creation_date)::date DESC

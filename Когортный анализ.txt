@@ -1,0 +1,28 @@
+WITH cohort_users AS (-- Подзапрос для определения когорт пользователей 
+    SELECT  
+        user_id,  
+        DATE_TRUNC('month', created_at)::date AS cohort_month,  
+        COUNT(*) OVER (PARTITION BY DATE_TRUNC('month', created_at)) AS cohort_size  
+    FROM tools_shop.users  
+    ),  
+
+orders_with_cohort AS ( -- Подзапрос для объединения данных о заказах с информацией о когортах 
+    SELECT  
+        o.user_id,  
+        o.total_amt,  
+        DATE_TRUNC('month', o.created_at)::date AS order_month,  
+        cu.cohort_month,  
+        cu.cohort_size  
+    FROM tools_shop.orders AS o  
+    JOIN cohort_users AS cu ON cu.user_id = o.user_id  
+)  
+
+SELECT  -- Вычисление продолжительности жизни заказа в месяцах 
+    EXTRACT(MONTH FROM AGE(o.order_month, cu.cohort_month)) AS lifetime,  
+    o.order_month,  
+    cu.cohort_month AS cohort_start_month,  
+    cu.cohort_size AS cohort_users_count,  
+    o.total_amt AS revenue  
+FROM orders_with_cohort AS o  
+JOIN cohort_users AS cu ON cu.user_id = o.user_id  
+ORDER BY cohort_start_month, order_month
